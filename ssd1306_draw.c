@@ -205,6 +205,11 @@ void IRAM_ATTR SSD1306_DrawBox( struct SSD1306_Device* DeviceHandle, int x1, int
 
         /* Right side */
         SSD1306_DrawVLine( DeviceHandle, x1 + Width, y1, Height, Color );
+
+        // Empty the fill
+        for ( ; y1 < y2 - 1; y1++ ) {
+            SSD1306_DrawHLine( DeviceHandle, x1 + 1, y1 + 1, Width - 2, SSD_COLOR_BLACK );
+        }
     } else {
         /* Fill the box by drawing horizontal lines */
         for ( ; y1 <= y2; y1++ ) {
