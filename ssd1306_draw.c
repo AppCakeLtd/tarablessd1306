@@ -218,6 +218,19 @@ void IRAM_ATTR SSD1306_DrawBox( struct SSD1306_Device* DeviceHandle, int x1, int
     }
 }
 
+void SSD1306_DrawCircle( struct SSD1306_Device* DeviceHandle, int x, int y, int radius, int Color, bool Fill) {
+  static const double PI = 3.1415926535;
+  double i, angle, x1, y1;
+
+  for (i = 0; i < 360; i += 0.1) {
+    angle = i;
+    x1 = radius * cos(angle * PI / 180);
+    y1 = radius * sin(angle * PI / 180);
+
+    SSD1306_DrawPixel(DeviceHandle, x + x1, y + y1, Color);
+  }
+}
+
 void SSD1306_Clear( struct SSD1306_Device* DeviceHandle, int Color ) {
     NullCheck( DeviceHandle, return );
     NullCheck( DeviceHandle->Framebuffer, return );
