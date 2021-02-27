@@ -36,6 +36,7 @@ static bool SPIDefaultWriteBytes( spi_device_handle_t SPIHandle, int WriteMode, 
 static bool SPIDefaultWriteCommand( struct SSD1306_Device* DeviceHandle, SSDCmd Command );
 static bool SPIDefaultWriteData( struct SSD1306_Device* DeviceHandle, const uint8_t* Data, size_t DataLength );
 static bool SPIDefaultReset( struct SSD1306_Device* DeviceHandle );
+static bool isWritingSPI = false;
 
 bool SSD1306_SPIMasterInitDefault( void ) {
     spi_bus_config_t BusConfig = {
@@ -88,19 +89,30 @@ bool SSD1306_SPIMasterAttachDisplayDefault( struct SSD1306_Device* DeviceHandle,
 }
 
 static bool SPIDefaultWriteBytes( spi_device_handle_t SPIHandle, int WriteMode, const uint8_t* Data, size_t DataLength ) {
-    spi_transaction_t SPITransaction;
+    if (!isWritingSPI) {
+        isWritingSPI = true;
+        spi_transaction_t SPITransaction;
 
-    NullCheck( SPIHandle, return false );
-    NullCheck( Data, return false );
+        NullCheck( SPIHandle, return false );
+        NullCheck( Data, return false );
 
-    if ( DataLength > 0 ) {
-        memset( &SPITransaction, 0, sizeof( spi_transaction_t ) );
+        if ( DataLength > 0 ) {
+            memset( &SPITransaction, 0, sizeof( spi_transaction_t ) );
 
-        SPITransaction.length = DataLength * 8;
-        SPITransaction.tx_buffer = Data;
+            SPITransaction.length = DataLength * 8;
+            SPITransaction.tx_buffer = Data;
 
-        gpio_set_level( DCPin, WriteMode );
-        ESP_ERROR_CHECK_NONFATAL( spi_device_transmit( SPIHandle, &SPITransaction ), return false );
+            gpio_set_level( DCPin, WriteMode );
+            ESP_ERROR_CHECK_NONFATAL( spi_device_transmit( SPIHandle, &SPITransaction ), return false );
+        }
+
+        isWritingSPI = false;
+    }
+    else {
+        // we've locked
+        // Wait a few ms and try again
+        vTaskDelay(5 / portTICK_PERIOD_MS);
+        SPIDefaultWriteBytes(SPIHandle, WriteMode, Data, DataLength);
     }
 
     return true;
