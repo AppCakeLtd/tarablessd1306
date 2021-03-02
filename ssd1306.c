@@ -114,7 +114,7 @@ static void EnableChargePumpRegulator( struct SSD1306_Device* DeviceHandle ) {
     NullCheck( DeviceHandle, return );
 
     SSD1306_WriteCommand( DeviceHandle, SSDCmd_Enable_Charge_Pump_Regulator );
-    SSD1306_WriteCommand( DeviceHandle, 0x14 ); /* MAGIC NUMBER */
+    SSD1306_WriteCommand( DeviceHandle, 0x10 ); /* MAGIC NUMBER */
 }
 
 void SSD1306_DisplayOn( struct SSD1306_Device* DeviceHandle ) {
@@ -225,7 +225,7 @@ static bool SSD1306_Init( struct SSD1306_Device* DeviceHandle, int Width, int He
     SSD1306_DisableDisplayRAM( DeviceHandle );
     SSD1306_SetInverted( DeviceHandle, false );
     SSD1306_SetDisplayClocks( DeviceHandle, 0, 8 );
-    // EnableChargePumpRegulator( DeviceHandle );
+    EnableChargePumpRegulator( DeviceHandle );
     SSD1306_SetDisplayAddressMode( DeviceHandle, AddressMode_Horizontal );
     SSD1306_SetColumnAddress( DeviceHandle, 0, DeviceHandle->Width - 1 );
     SSD1306_SetPageAddress( DeviceHandle, 0, ( DeviceHandle->Height / 8 ) - 1 );
